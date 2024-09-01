@@ -1,16 +1,39 @@
 # speakin_ai
 
-A new Flutter project.
+Simple Flutter speaking bot using OpenAI's API.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:tokyoundergroundbeatzmassive/speakinAI.git
+   cd speakinAI
+   ```
 
-A few resources to get you started if this is your first Flutter project:
+2. Create a `.env` file from the sample:
+   ```bash
+   cp .env_sample .env
+   ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+3. Add your OpenAI API key to the `.env` file:
+   ```plaintext
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+4. Install dependencies:
+   ```bash
+   flutter pub get
+   ```
+
+5. Run the app:
+   ```bash
+   flutter run
+   ```
+
+## Note
+
+Only tested on iOS 15.2 simulator.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
