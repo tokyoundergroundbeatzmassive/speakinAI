@@ -5,11 +5,8 @@ Simple Flutter speaking bot using OpenAI's API.
 ## Getting Started
 
 1. Clone the repository:
-   ```bash
-   git clone git@github.com:tokyoundergroundbeatzmassive/speakinAI.git
-   cd speakinAI
-   ```
-
+   `git clone` it
+   
 2. Create a `.env` file from the sample:
    ```bash
    cp .env_sample .env
