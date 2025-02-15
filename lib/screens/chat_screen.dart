@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../utils/recording_control.dart';
+import 'components/mode_switch.dart';
+import 'components/video_button.dart';
+import 'components/mic_button.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -13,6 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final RecordingControl _recordingControl = RecordingControl();
   bool _isRecording = false;
   bool _isProcessing = false;
+  bool _isVideoMode = true;
 
   @override
   void initState() {
@@ -61,38 +65,36 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SpeakinAI'),
+        actions: [
+          ModeSwitch(
+            isVideoMode: _isVideoMode,
+            onChanged: (value) {
+              setState(() {
+                _isVideoMode = value;
+              });
+              debugPrint('モード切り替え: ${_isVideoMode ? "動画" : "音声"}');
+            },
+          ),
+        ],
       ),
       body: Center(
-        child: GestureDetector(
-          onTapDown: (_) => _handleTap(),
-          onTapUp: (_) => _handleTap(),
-          onTapCancel: () => _handleTap(),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: _isRecording
-                  ? Colors.green
-                  : (_isProcessing ? Colors.yellow : Colors.red),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: _isProcessing
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Icon(
-                    _isRecording ? Icons.mic : Icons.mic_none,
-                    size: 100,
-                    color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _isVideoMode
+                ? VideoButton(
+                    onTap: () {
+                      debugPrint('録画ボタンが押されました');
+                    },
+                  )
+                : MicButton(
+                    isRecording: _isRecording,
+                    isProcessing: _isProcessing,
+                    onTapDown: _handleTap,
+                    onTapUp: _handleTap,
+                    onTapCancel: _handleTap,
                   ),
-          ),
+          ],
         ),
       ),
     );

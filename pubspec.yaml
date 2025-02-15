@@ -26,6 +26,9 @@ flutter:
   assets:
     - .env
 
+dependency_overrides:
+  win32: ^5.10.1
+
   # 以下のコメントアウトされたセクションは必要に応じて使用してください
   # assets:
   #   - images/a_dot_burr.jpeg
