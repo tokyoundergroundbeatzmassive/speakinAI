@@ -15,6 +15,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   cupertino_icons: ^1.0.2
   audioplayers: ^4.0.0
+  camera: ^0.10.5+9
 
 dev_dependencies:
   flutter_test:

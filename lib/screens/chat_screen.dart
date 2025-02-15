@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/recording_control.dart';
+import '../utils/camera_control.dart';
 import 'components/mode_switch.dart';
 import 'components/video_button.dart';
 import 'components/mic_button.dart';
@@ -14,14 +15,22 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final RecordingControl _recordingControl = RecordingControl();
+  final CameraControl _cameraControl = CameraControl();
   bool _isRecording = false;
   bool _isProcessing = false;
   bool _isVideoMode = true;
+  bool _isPressed = false;
 
   @override
   void initState() {
     super.initState();
     _recordingControl.initializeRecorder();
+    _initializeCamera();
+  }
+
+  Future<void> _initializeCamera() async {
+    await _cameraControl.initializeCamera();
+    setState(() {});
   }
 
   Future<void> _startRecording() async {
@@ -60,6 +69,12 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _handlePressedChanged(bool pressed) {
+    setState(() {
+      _isPressed = pressed;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +98,10 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             _isVideoMode
                 ? VideoButton(
+                    isPressed: _isPressed,
+                    onPressedChanged: _handlePressedChanged,
+                    cameraControl: _cameraControl,
+                    cameraController: _cameraControl.controller,
                     onTap: () {
                       debugPrint('録画ボタンが押されました');
                     },
@@ -103,6 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _recordingControl.record.dispose();
+    _cameraControl.dispose();
     super.dispose();
   }
 }
