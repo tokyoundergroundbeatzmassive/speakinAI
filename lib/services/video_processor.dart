@@ -1,60 +1,79 @@
-import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'dart:async';
 
 class VideoProcessor {
-  VideoPlayerController? _videoPlayerController;
-  final List<String> _tempFilePaths = [];  // 一時ファイルのパスを保持
+  final List<String> _tempFilePaths = [];
 
-  /// 動画ファイルからフレームを抽出する
-  /// @param videoPath 動画ファイルのパス
-  /// @return 抽出されたフレーム画像のパスリスト
   Future<List<String>> extractFrames(String videoPath) async {
     try {
       debugPrint('動画読み込み開始: $videoPath');
-      _videoPlayerController = VideoPlayerController.file(File(videoPath));
-      await _videoPlayerController!.initialize();
-      
       final directory = await getTemporaryDirectory();
-      final duration = _videoPlayerController!.value.duration;
       final frames = <String>[];
       
-      debugPrint('動画の長さ: ${duration.inSeconds}秒');
-      debugPrint('フレーム抽出開始');
-      
-      // 0.5秒間隔でフレームを抽出
-      for (var i = 0; i < duration.inMilliseconds; i += 500) {
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        await _videoPlayerController!.seekTo(Duration(milliseconds: i));
-        final frameFile = File('${directory.path}/frame_${timestamp}_$i.jpg');
+      final videoFile = File(videoPath);
+      if (!await videoFile.exists()) {
+        debugPrint('動画ファイルが存在しません: $videoPath');
+        return [];
+      }
+
+      // 一時ディレクトリの存在確認と作成
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      for (var i = 0; i < 3000; i += 500) {
+        try {
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final fileName = 'thumb_${timestamp}_$i.jpg';
+          final fullPath = '${directory.path}/$fileName';
+          
+          debugPrint('サムネイル生成開始:'
+              '\n  時間: ${i/1000}秒'
+              '\n  パス: $fullPath'
+          );
+
+          final thumbnail = await VideoThumbnail.thumbnailFile(
+            video: videoPath,
+            thumbnailPath: fullPath,
+            imageFormat: ImageFormat.JPEG,
+            timeMs: i,
+            quality: 100,
+            maxHeight: 1080,
+            maxWidth: 1920,
+          );
         
-        // フレームのパスを保存
-        _tempFilePaths.add(frameFile.path);
-        frames.add(frameFile.path);
-        debugPrint('フレーム保存 (${i/1000}秒): ${frameFile.path}');
+          if (thumbnail != null) {
+            final file = File(thumbnail);
+            if (await file.exists()) {
+              final fileSize = await file.length();
+              debugPrint('サムネイル生成成功:'
+                  '\n  時間: ${i/1000}秒'
+                  '\n  サイズ: ${(fileSize / 1024).toStringAsFixed(2)} KB'
+              );
+              _tempFilePaths.add(thumbnail);
+              frames.add(thumbnail);
+            } else {
+              debugPrint('警告: ファイルが生成されませんでした: $thumbnail');
+            }
+          }
+        } catch (e) {
+          debugPrint('個別のサムネイル生成エラー: $e');
+          continue;
+        }
       }
 
       debugPrint('フレーム抽出完了: ${frames.length}枚のフレームを保存');
       return frames;
-
     } catch (e) {
       debugPrint('フレーム抽出エラー: $e');
       return [];
-    } finally {
-      debugPrint('一時ファイルのクリーンアップ開始');
-      await dispose();
-      debugPrint('処理完了');
     }
   }
 
   Future<void> dispose() async {
-    // VideoPlayerController の破棄
-    await _videoPlayerController?.dispose();
-    _videoPlayerController = null;
-
-    // 一時ファイルの削除
     for (final path in _tempFilePaths) {
       try {
         final file = File(path);

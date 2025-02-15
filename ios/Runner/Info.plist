@@ -49,5 +49,21 @@
 		<true />
 		<key>NSMicrophoneUsageDescription</key>
 		<string>This app needs access to the microphone for recording audio.</string>
+		<!-- カメラ使用の権限 -->
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs access to camera to record video and capture frames.</string>
+		<!-- 写真へのアクセス権限 -->
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs access to photo library to save captured frames.</string>
+		
+		<!-- 写真の保存権限 -->
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>This app needs access to save captured frames to your photo library.</string>
+		
+		<!-- 一時ファイル保存のための権限 -->
+		<key>LSSupportsOpeningDocumentsInPlace</key>
+		<true/>
+		<key>UIFileSharingEnabled</key>
+		<true/>
 	</dict>
 </plist>
