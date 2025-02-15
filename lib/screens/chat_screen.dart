@@ -70,9 +70,11 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _handlePressedChanged(bool pressed) {
-    setState(() {
-      _isPressed = pressed;
-    });
+    if (_isPressed != pressed) {  // 状態が変化する場合のみsetStateを呼び出す
+      setState(() {
+        _isPressed = pressed;
+      });
+    }
   }
 
   @override

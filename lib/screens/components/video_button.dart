@@ -20,16 +20,30 @@ class VideoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // プレビューサイズを設定
+    debugPrint('VideoButton: build開始');
     cameraControl.setPreviewSize(context);
 
     return GestureDetector(
-      onTapDown: (_) {
+      onTapDown: (_) async {
+        debugPrint('VideoButton: タップダウン');
         onPressedChanged(true);
-        onTap?.call();  // onTap が設定されている場合に呼び出し
+        onTap?.call();
+        // 録画開始処理を追加
+        await cameraControl.startVideoRecording();
       },
-      onTapUp: (_) => onPressedChanged(false),
-      onTapCancel: () => onPressedChanged(false),
+      onTapUp: (_) async {
+        debugPrint('VideoButton: タップアップ');
+        onPressedChanged(false);
+        // 録画停止処理を追加
+        final frames = await cameraControl.stopVideoRecording();
+        debugPrint('抽出されたフレーム数: ${frames.length}');
+      },
+      onTapCancel: () async {
+        debugPrint('VideoButton: タップキャンセル');
+        onPressedChanged(false);
+        // キャンセル時も録画を停止
+        await cameraControl.stopVideoRecording();
+      },
       child: Stack(
         alignment: Alignment.center,
         children: [
