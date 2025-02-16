@@ -4,6 +4,7 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../utils/app_paths.dart';
+import '../utils/blur_detector.dart';
 
 class VideoProcessor {
   VideoProcessor() {
@@ -34,14 +35,11 @@ class VideoProcessor {
       if (ReturnCode.isSuccess(imageReturnCode)) {
         final frames = await getExtractedFrames();
         debugPrint('フレーム抽出完了: ${frames.length}枚');
-        debugPrint('保存されたフレーム:');
-        for (final frame in frames) {
-          debugPrint('- $frame');
-          // ファイルが実際に存在するか確認
-          // final exists = await File(frame).exists();
-          // debugPrint('  存在確認: ${exists ? "有" : "無"}');
-        }
-        return frames;
+        
+        // ブレ検出とフィルタリングを追加
+        final filteredFrames = await filterBlurryFrames(frames);
+        
+        return filteredFrames;  // フィルタリング済みのフレームを返す
       } else {
         throw Exception('フレーム抽出に失敗しました');
       }
@@ -91,5 +89,28 @@ class VideoProcessor {
       return audioPath;
     }
     return null;
+  }
+
+  Future<List<String>> filterBlurryFrames(List<String> framePaths, {double threshold = 100.0}) async {
+    debugPrint('ブレ検出開始: ${framePaths.length}枚のフレームを分析');
+    final filteredFrames = <String>[];
+    
+    for (final path in framePaths) {
+      final blurScore = BlurDetector.detectBlur(path);
+      if (blurScore >= threshold) {
+        filteredFrames.add(path);
+        debugPrint('フレーム採用: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
+      } else {
+        await File(path).delete();
+        debugPrint('フレーム削除: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
+      }
+    }
+    
+    debugPrint('ブレ検出完了:');
+    debugPrint('- 元のフレーム数: ${framePaths.length}');
+    debugPrint('- 採用フレーム数: ${filteredFrames.length}');
+    debugPrint('- 削除フレーム数: ${framePaths.length - filteredFrames.length}');
+    
+    return filteredFrames;
   }
 }
