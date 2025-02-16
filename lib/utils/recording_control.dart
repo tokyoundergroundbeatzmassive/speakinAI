@@ -7,7 +7,7 @@ import '../services/stt.dart';
 import '../services/tts.dart';
 import '../utils/message_manager.dart';
 import '../utils/app_paths.dart';
-import '../utils/storage_cleaner.dart';  // StorageCleanerのインポートを追加
+import '../utils/storage_cleaner.dart';
 
 class RecordingControl {
   final Record record = Record();
