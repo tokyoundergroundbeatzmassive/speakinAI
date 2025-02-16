@@ -106,6 +106,24 @@ class VideoProcessor {
       }
     }
     
+    // 6枚以上ある場合は、最新の6枚だけを残す
+    if (filteredFrames.length > 6) {
+      // フレーム番号でソート
+      filteredFrames.sort((a, b) {
+        final aNum = int.parse(a.split('frame_')[1].split('.')[0]);
+        final bNum = int.parse(b.split('frame_')[1].split('.')[0]);
+        return bNum.compareTo(aNum); // 降順（新しい順）でソート
+      });
+      
+      // 7枚目以降を削除
+      for (var i = 6; i < filteredFrames.length; i++) {
+        await File(filteredFrames[i]).delete();
+        debugPrint('超過フレーム削除: ${filteredFrames[i]}');
+      }
+      
+      filteredFrames.removeRange(6, filteredFrames.length);
+    }
+    
     debugPrint('ブレ検出完了:');
     debugPrint('- 元のフレーム数: ${framePaths.length}');
     debugPrint('- 採用フレーム数: ${filteredFrames.length}');
