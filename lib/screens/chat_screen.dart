@@ -96,20 +96,22 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _isVideoMode
-                ? VideoButton(
-                    isPressed: _isPressed,
-                    onPressedChanged: _handlePressedChanged,
-                    cameraControl: _cameraControl,
-                    cameraController: _cameraControl.controller,
-                  )
-                : MicButton(
-                    isRecording: _isRecording,
-                    isProcessing: _isProcessing,
-                    onTapDown: _handleTap,
-                    onTapUp: _handleTap,
-                    onTapCancel: _handleTap,
-                  ),
+            Expanded( // カメラプレビューを利用可能なスペースに合わせる
+              child: _isVideoMode
+                  ? VideoButton(
+                      isPressed: _isPressed,
+                      onPressedChanged: _handlePressedChanged,
+                      cameraControl: _cameraControl,
+                      cameraController: _cameraControl.controller,
+                    )
+                  : MicButton(
+                      isRecording: _isRecording,
+                      isProcessing: _isProcessing,
+                      onTapDown: _handleTap,
+                      onTapUp: _handleTap,
+                      onTapCancel: _handleTap,
+                    ),
+            ),
           ],
         ),
       ),
