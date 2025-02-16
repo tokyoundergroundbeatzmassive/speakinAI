@@ -9,7 +9,6 @@ class CameraControl {
   CameraController? _controller;
   bool _isInitialized = false;
   double _previewSize = 0;
-  String? _videoPath;
   bool _isRecording = false;
   final VideoProcessor _videoProcessor = VideoProcessor();
 
