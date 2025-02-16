@@ -3,23 +3,29 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/foundation.dart';
 
 class BlurDetector {
-  /// ラプラシアン分散を計算してブレを検出する
-  /// 返値: ブレ度合いのスコア（低いほどブレている）
+  // ROI（Region of Interest）を使用して中央部分のみを評価
   static double detectBlur(String imagePath) {
     try {
-      // 画像の読み込み
       final image = img.decodeImage(File(imagePath).readAsBytesSync());
       if (image == null) throw Exception('画像の読み込みに失敗しました');
 
-      // グレースケールに変換
-      final grayscale = img.grayscale(image);
-      
-      // ラプラシアンフィルタの適用
+      // 画像中央の領域のみを評価
+      final centerX = image.width ~/ 2;
+      final centerY = image.height ~/ 2;
+      const roiSize = 300; // ROIのサイズ
+
+      final croppedImage = img.copyCrop(
+        image,  // 位置引数として渡す
+        x: centerX - roiSize ~/ 2,
+        y: centerY - roiSize ~/ 2,
+        width: roiSize,
+        height: roiSize,
+      );
+
+      final grayscale = img.grayscale(croppedImage);
       final laplacian = _applyLaplacian(grayscale);
-      
-      // 分散の計算
       final variance = _calculateVariance(laplacian);
-      
+
       debugPrint('ブレ検出スコア ($imagePath): $variance');
       return variance;
     } catch (e) {

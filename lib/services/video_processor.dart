@@ -91,7 +91,7 @@ class VideoProcessor {
     return null;
   }
 
-  Future<List<String>> filterBlurryFrames(List<String> framePaths, {double threshold = 100.0}) async {
+  Future<List<String>> filterBlurryFrames(List<String> framePaths, {double threshold = 80.0}) async {
     debugPrint('ブレ検出開始: ${framePaths.length}枚のフレームを分析');
     final filteredFrames = <String>[];
     
