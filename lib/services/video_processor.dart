@@ -49,7 +49,8 @@ class VideoProcessor {
     final audioPath = '${directory.path}/audio.m4a';
     
     debugPrint('音声抽出開始: $videoPath');
-    final audioCommand = '-i $videoPath -vn -acodec copy $audioPath';
+    // -y オプションを追加して強制上書きを有効化
+    final audioCommand = '-y -i $videoPath -vn -acodec copy $audioPath';
     
     try {
       final audioSession = await FFmpegKit.execute(audioCommand);
