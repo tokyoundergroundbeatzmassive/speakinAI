@@ -102,6 +102,11 @@ class CameraControl {
         final results = await Future.wait([framesFuture, audioFuture]);
         final frames = results[0] as List<String>;
         final audioPath = results[1] as String;
+
+        // フレームが空の場合はエラーを投げる
+        if (frames.isEmpty) {
+          throw Exception('stable_camera_required');
+        }
         
         debugPrint('処理完了:');
         debugPrint('- フレーム数: ${frames.length}');
@@ -110,11 +115,11 @@ class CameraControl {
         return videoPath;
       } catch (processError) {
         debugPrint('ファイル処理エラー: $processError');
-        return null;
+        rethrow;  // エラーを上位に伝播
       }
     } catch (e) {
       debugPrint('録画停止エラー: $e');
-      return null;
+      rethrow;  // エラーを上位に伝播
     }
   }
 

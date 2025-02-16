@@ -69,10 +69,70 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _handlePressedChanged(bool pressed) {
+  void _handlePressedChanged(bool pressed) async {
     setState(() {
       _isPressed = pressed;
     });
+    
+    if (!pressed) {
+      try {
+        final videoPath = await _cameraControl.stopRecording();
+        if (videoPath == null) return;
+        
+        debugPrint('録画完了: $videoPath');
+      } catch (e) {
+        if (!mounted) return;
+
+        if (e.toString().contains('stable_camera_required')) {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('撮影エラー'),
+                content: const Column(  // constを追加
+                  mainAxisSize: MainAxisSize.min,
+                  children: [  // constを追加
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.orange,
+                      size: 48,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'ブレが大きすぎます。\nスマートフォンを安定させて\n撮影してください。',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('エラー'),
+                content: Text(e.toString()),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+    }
   }
 
   @override
