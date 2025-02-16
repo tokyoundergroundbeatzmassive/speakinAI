@@ -1,10 +1,19 @@
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 
 class VideoProcessor {
+  VideoProcessor() {
+    _initializeFFmpeg();
+  }
+
+  Future<void> _initializeFFmpeg() async {
+    await FFmpegKitConfig.setLogLevel(0); // 0 は QUIET レベルを表します
+  }
+
   String? _currentVideoPath;
   // 録画開始時のパス設定
   Future<String> initializeVideoPath() async {

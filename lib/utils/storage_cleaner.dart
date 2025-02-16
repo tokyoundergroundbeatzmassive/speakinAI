@@ -9,8 +9,9 @@ class StorageCleaner {
     if (await videoDir.exists()) {
       await for (final file in videoDir.list()) {
         // システムディレクトリはスキップ
-        if (file.path.contains('com.apple') || 
-            file is Directory) continue;
+        if (file.path.contains('com.apple') || file is Directory) {
+          continue;
+        }
         
         await file.delete();
         debugPrint('動画を削除: ${file.path}');
