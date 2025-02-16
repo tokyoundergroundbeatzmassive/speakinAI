@@ -4,8 +4,8 @@ import 'dart:io';
 class AppPaths {
   /// ビデオ関連のパス
   static Future<String> get videosPath async {
-    final directory = await getTemporaryDirectory();
-    return directory.path;
+    final directory = await getApplicationDocumentsDirectory();
+    return '${directory.path}/camera/videos';
   }
 
   /// フレーム画像のパス
