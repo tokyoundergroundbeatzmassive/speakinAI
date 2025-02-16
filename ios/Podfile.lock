@@ -3,39 +3,62 @@ PODS:
     - Flutter
   - camera_avfoundation (0.0.1):
     - Flutter
+  - ffmpeg-kit-ios-https (6.0)
+  - ffmpeg_kit_flutter (6.0.0):
+    - ffmpeg_kit_flutter/https (= 6.0.0)
+    - Flutter
+  - ffmpeg_kit_flutter/https (6.0.0):
+    - ffmpeg-kit-ios-https (= 6.0)
+    - Flutter
   - Flutter (1.0.0)
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
   - record (0.0.1):
     - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - ffmpeg_kit_flutter (from `.symlinks/plugins/ffmpeg_kit_flutter/ios`)
   - Flutter (from `Flutter`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - record (from `.symlinks/plugins/record/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - ffmpeg-kit-ios-https
 
 EXTERNAL SOURCES:
   audioplayers_darwin:
     :path: ".symlinks/plugins/audioplayers_darwin/ios"
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
+  ffmpeg_kit_flutter:
+    :path: ".symlinks/plugins/ffmpeg_kit_flutter/ios"
   Flutter:
     :path: Flutter
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   record:
     :path: ".symlinks/plugins/record/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
 
 SPEC CHECKSUMS:
   audioplayers_darwin: ccf9c770ee768abb07e26d90af093f7bab1c12ab
   camera_avfoundation: 04b44aeb14070126c6529e5ab82cc7c9fca107cf
+  ffmpeg-kit-ios-https: f9c838aa5400a6c5ba12324c6b798f52197ba354
+  ffmpeg_kit_flutter: d815b4dc0744e189d9eed60aa2fd42692f5800cd
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   path_provider_foundation: 2a68637f8a62df7f6e790a428d1bdf72cb4e2d59
   record: 426d0643542aaca81f738c5d214ad99626b2f134
+  video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b
 
-PODFILE CHECKSUM: 5fb9d4fcba8ea61d577cae2b0c01421075de3d4f
+PODFILE CHECKSUM: a6c91c52ce162787207b0b88fd2dd6ad47f24cb9
 
 COCOAPODS: 1.16.2

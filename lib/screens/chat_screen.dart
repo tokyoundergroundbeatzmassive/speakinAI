@@ -102,9 +102,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressedChanged: _handlePressedChanged,
                     cameraControl: _cameraControl,
                     cameraController: _cameraControl.controller,
-                    onTap: () {
-                      debugPrint('録画ボタンが押されました');
-                    },
                   )
                 : MicButton(
                     isRecording: _isRecording,
