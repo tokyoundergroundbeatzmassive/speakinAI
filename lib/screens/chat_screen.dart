@@ -5,6 +5,7 @@ import '../utils/camera_control.dart';
 import 'components/mode_switch.dart';
 import 'components/video_button.dart';
 import 'components/mic_button.dart';
+import 'components/blury_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -84,52 +85,9 @@ class _ChatScreenState extends State<ChatScreen> {
         if (!mounted) return;
 
         if (e.toString().contains('stable_camera_required')) {
-          await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('撮影エラー'),
-                content: const Column(  // constを追加
-                  mainAxisSize: MainAxisSize.min,
-                  children: [  // constを追加
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: Colors.orange,
-                      size: 48,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'ブレが大きすぎます。\nスマートフォンを安定させて\n撮影してください。',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
+          await WarningDialog.showStableCameraWarning(context);
         } else {
-          await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('エラー'),
-                content: Text(e.toString()),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
-          );
+          await WarningDialog.showGeneralError(context, e.toString());
         }
       }
     }
