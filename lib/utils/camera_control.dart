@@ -8,18 +8,8 @@ import '../services/video_processor.dart';
 class CameraControl {
   CameraController? _controller;
   bool _isInitialized = false;
-  double _previewSize = 0;
   bool _isRecording = false;
   final VideoProcessor _videoProcessor = VideoProcessor();
-
-  // プレビューサイズのゲッター
-  double get previewSize => _previewSize;
-
-  // プレビューサイズを設定するメソッド
-  void setPreviewSize(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    _previewSize = size.shortestSide * 1.0;  // 画面の短い方のサイズに設定
-  }
 
   Future<void> initializeCamera() async {
     if (_controller != null) return;
@@ -33,7 +23,7 @@ class CameraControl {
 
     _controller = CameraController(
       cameras[0],
-      ResolutionPreset.medium,
+      ResolutionPreset.veryHigh,  // 高解像度で録画
       enableAudio: true,
     );
 
@@ -46,8 +36,9 @@ class CameraControl {
     }
   }
 
-  // 録画状態のゲッター
   bool get isRecording => _isRecording;
+  CameraController? get controller => _controller;
+  bool get isInitialized => _isInitialized;
 
   // 古い動画ファイルを削除（TODO: これは処理後に削除するように各機能をのちに移動する事）
   Future<void> _cleanupAllFiles() async {
@@ -59,7 +50,7 @@ class CameraControl {
       final paths = [
         '${appDirectory.path}/camera/videos',  // 動画ファイル
         '${tempDirectory.path}/frame_*.jpg',   // 画像ファイル - Cachesディレクトリに変更
-        '${appDirectory.path}/audio.m4a',      // 音声ファイル
+        '${tempDirectory.path}/audio.m4a',      // 音声ファイル
       ];
 
       for (final path in paths) {
@@ -71,7 +62,9 @@ class CameraControl {
           if (await dir.exists()) {
             final files = await dir
                 .list()
-                .where((entity) => entity.path.contains('frame_'))
+                .where((entity) => 
+                  entity.path.contains('frame_') || 
+                  entity.path.contains('thumb_'))
                 .toList();
             debugPrint('既存の画像ファイル数: ${files.length}');
             
@@ -124,7 +117,10 @@ class CameraControl {
       await _cleanupAllFiles();
 
       final directory = await getApplicationDocumentsDirectory();
-      final timestamp = DateTime.now();
+
+      // カメラの実際の解像度情報を取得
+      final cameraResolution = _controller!.value.previewSize;
+      const recordingResolution = ResolutionPreset.veryHigh; 
 
       // ディレクトリが存在しない場合は作成
       await Directory('${directory.path}/camera/videos').create(recursive: true);
@@ -133,8 +129,9 @@ class CameraControl {
       _isRecording = true;
       
       debugPrint('録画開始:');
-      debugPrint('- 日時: $timestamp');
-      debugPrint('- サイズ: ${_previewSize}x$_previewSize');
+      debugPrint('- カメラプレビュー解像度: ${cameraResolution?.width}x${cameraResolution?.height}');
+      debugPrint('- 録画設定解像度: $recordingResolution');
+      debugPrint('- カメラ詳細: ${_controller!.value.description}');
     } catch (e) {
       debugPrint('録画開始エラー: $e');
     }
@@ -162,7 +159,6 @@ class CameraControl {
       debugPrint('- パス: $videoPath');
       debugPrint('- サイズ: ${fileSizeInMB}MB');
       debugPrint('- 作成日時: ${fileStats.modified}');
-      debugPrint('- プレビューサイズ: ${_previewSize}x$_previewSize');
 
       // VideoProcessorで処理を開始
       debugPrint('録画ファイルの処理開始');
@@ -200,7 +196,4 @@ class CameraControl {
     stopRecording();
     stopCamera();
   }
-
-  CameraController? get controller => _controller;
-  bool get isInitialized => _isInitialized;
 }

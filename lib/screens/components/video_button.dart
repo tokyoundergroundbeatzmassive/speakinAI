@@ -20,37 +20,31 @@ class VideoButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // プレビューサイズを設定
-    cameraControl.setPreviewSize(context);
-
+    final size = MediaQuery.of(context).size;
+    
     return GestureDetector(
       onTapDown: (_) async {
         onPressedChanged(true);
-        // 録画開始
         await cameraControl.startRecording();
       },
       onTapUp: (_) async {
         onPressedChanged(false);
-        // 録画停止
         final videoPath = await cameraControl.stopRecording();
         debugPrint('録画完了: $videoPath');
       },
       onTapCancel: () async {
         onPressedChanged(false);
-        // キャンセル時も録画停止
         await cameraControl.stopRecording();
       },
       child: Stack(
         alignment: Alignment.center,
         children: [
           if (isPressed && cameraController != null && cameraController!.value.isInitialized)
-            SizedBox(
-              width: cameraControl.previewSize,
-              height: cameraControl.previewSize,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CameraPreview(cameraController!),
-              ),
+            Container(
+              width: size.width,
+              height: size.height,
+              color: Colors.black,
+              child: CameraPreview(cameraController!),
             ),
           Container(
             width: 200,
