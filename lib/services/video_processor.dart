@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 
 class VideoProcessor {
   String? _currentVideoPath;
-  
   // 録画開始時のパス設定
   Future<String> initializeVideoPath() async {
     final directory = await getTemporaryDirectory();
@@ -14,15 +13,12 @@ class VideoProcessor {
     return _currentVideoPath!;
   }
 
-  // フレーム抽出処理
-  Future<List<String>> extractFrames() async {
-    if (_currentVideoPath == null) throw Exception('ビデオパスが設定されていません');
-    
+  Future<List<String>> extractFrames(String videoPath) async {
     final directory = await getTemporaryDirectory();
     final baseOutputPath = directory.path;
     
-    debugPrint('フレーム抽出開始');
-    final imageCommand = '-i $_currentVideoPath -vf fps=2 $baseOutputPath/frame_%d.jpg';
+    debugPrint('フレーム抽出開始: $videoPath');
+    final imageCommand = '-i $videoPath -vf fps=2 $baseOutputPath/frame_%d.jpg';
     
     try {
       final imageSession = await FFmpegKit.execute(imageCommand);
@@ -31,6 +27,13 @@ class VideoProcessor {
       if (ReturnCode.isSuccess(imageReturnCode)) {
         final frames = await getExtractedFrames();
         debugPrint('フレーム抽出完了: ${frames.length}枚');
+        debugPrint('保存されたフレーム:');
+        for (final frame in frames) {
+          debugPrint('- $frame');
+          // ファイルが実際に存在するか確認
+          // final exists = await File(frame).exists();
+          // debugPrint('  存在確認: ${exists ? "有" : "無"}');
+        }
         return frames;
       } else {
         throw Exception('フレーム抽出に失敗しました');
@@ -41,15 +44,12 @@ class VideoProcessor {
     }
   }
 
-  // 音声抽出処理
-  Future<String> extractAudio() async {
-    if (_currentVideoPath == null) throw Exception('ビデオパスが設定されていません');
-    
+  Future<String> extractAudio(String videoPath) async {
     final directory = await getTemporaryDirectory();
     final audioPath = '${directory.path}/audio.m4a';
     
-    debugPrint('音声抽出開始');
-    final audioCommand = '-i $_currentVideoPath -vn -acodec copy $audioPath';
+    debugPrint('音声抽出開始: $videoPath');
+    final audioCommand = '-i $videoPath -vn -acodec copy $audioPath';
     
     try {
       final audioSession = await FFmpegKit.execute(audioCommand);
