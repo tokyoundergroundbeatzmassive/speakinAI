@@ -29,7 +29,7 @@ class CameraControl {
     _controller = CameraController(
       cameras[0],
       ResolutionPreset.medium,
-      enableAudio: false,
+      enableAudio: true,
     );
 
     try {
