@@ -2,8 +2,8 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import '../utils/app_paths.dart';
 
 class VideoProcessor {
   VideoProcessor() {
@@ -11,20 +11,18 @@ class VideoProcessor {
   }
 
   Future<void> _initializeFFmpeg() async {
-    await FFmpegKitConfig.setLogLevel(0); // 0 は QUIET レベルを表します
+    await FFmpegKitConfig.setLogLevel(0);
   }
 
   String? _currentVideoPath;
   // 録画開始時のパス設定
   Future<String> initializeVideoPath() async {
-    final directory = await getTemporaryDirectory();
-    _currentVideoPath = '${directory.path}/temp_video.mp4';
+    _currentVideoPath = '${await AppPaths.videosPath}/temp_video.mp4';
     return _currentVideoPath!;
   }
 
   Future<List<String>> extractFrames(String videoPath) async {
-    final directory = await getTemporaryDirectory();
-    final baseOutputPath = directory.path;
+    final baseOutputPath = await AppPaths.framesPath;
     
     debugPrint('フレーム抽出開始: $videoPath');
     final imageCommand = '-i $videoPath -vf fps=2 $baseOutputPath/frame_%d.jpg';
@@ -54,8 +52,7 @@ class VideoProcessor {
   }
 
   Future<String> extractAudio(String videoPath) async {
-    final directory = await getTemporaryDirectory();
-    final audioPath = '${directory.path}/audio.m4a';
+    final audioPath = '${await AppPaths.audioPath}/audio.m4a';
     
     debugPrint('音声抽出開始: $videoPath');
     // -y オプションを追加して強制上書きを有効化
@@ -79,7 +76,7 @@ class VideoProcessor {
 
   // 生成されたファイルを取得
   Future<List<String>> getExtractedFrames() async {
-    final directory = await getTemporaryDirectory();
+    final directory = Directory(await AppPaths.framesPath);
     final files = directory.listSync()
         .where((file) => file.path.contains('frame_'))
         .map((file) => file.path)
@@ -89,8 +86,7 @@ class VideoProcessor {
 
   // 音声ファイルのパスを取得
   Future<String?> getExtractedAudio() async {
-    final directory = await getTemporaryDirectory();
-    final audioPath = '${directory.path}/audio.m4a';
+    final audioPath = '${await AppPaths.audioPath}/audio.m4a';
     if (await File(audioPath).exists()) {
       return audioPath;
     }
