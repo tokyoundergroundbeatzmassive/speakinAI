@@ -25,7 +25,7 @@ class VideoProcessor {
     final baseOutputPath = await AppPaths.framesPath;
     
     debugPrint('フレーム抽出開始: $videoPath');
-    final imageCommand = '-i $videoPath -vf fps=2 $baseOutputPath/frame_%d.jpg';
+    final imageCommand = '-i $videoPath -vf fps=4 $baseOutputPath/frame_%d.jpg';
     
     try {
       final imageSession = await FFmpegKit.execute(imageCommand);

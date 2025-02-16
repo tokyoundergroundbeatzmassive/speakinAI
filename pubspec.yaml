@@ -19,6 +19,7 @@ dependencies:
   ffmpeg_kit_flutter: ^6.0.3
   ffmpeg_kit_flutter_platform_interface: ^0.2.1
   video_player: ^2.8.1
+  image: ^4.0.17
 
 dev_dependencies:
   flutter_test:
