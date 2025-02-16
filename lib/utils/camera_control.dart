@@ -4,12 +4,18 @@ import 'dart:async';
 import 'dart:io';
 import '../services/video_processor.dart';
 import 'storage_cleaner.dart';
+import '../services/stt.dart';
+import '../utils/message_manager.dart';
+import '../services/chat.dart';
+import '../services/tts.dart';
+import '../services/speak.dart';
 
 class CameraControl {
   CameraController? _controller;
   bool _isInitialized = false;
   bool _isRecording = false;
   final VideoProcessor _videoProcessor = VideoProcessor();
+  List<Map<String, String>> _messages = [];  // 追加
 
   Future<void> initializeCamera() async {
     if (_controller != null) return;
@@ -106,6 +112,35 @@ class CameraControl {
         // フレームが空の場合はエラーを投げる
         if (frames.isEmpty) {
           throw Exception('stable_camera_required');
+        }
+
+        // 文字起こしと会話処理を追加
+        final transcription = await STTService.transcribe(File(audioPath));
+        if (transcription.isNotEmpty) {
+          debugPrint('文字起こし完了: $transcription');
+          
+          // メッセージを追加
+          _messages.add({'role': 'user', 'content': transcription});
+          _messages = MessageManager.manageMessages(_messages);
+
+          // AI応答を取得
+          debugPrint('AI応答を取得中...');
+          final aiResponse = await ChatService.getChatResponse(_messages);
+          debugPrint('AI応答: $aiResponse');
+
+          _messages.add({'role': 'assistant', 'content': aiResponse});
+          debugPrint('Conversation History: $_messages');
+          _messages = MessageManager.manageMessages(_messages);
+
+        // 音声合成と再生を追加
+        debugPrint('AI応答を音声合成中...');
+        final speechPath = await TTSService.generateSpeech(aiResponse);
+        debugPrint('音声合成完了: $speechPath');
+
+        await SpeakService.playAudio(speechPath);
+        debugPrint('音声再生中...');
+        } else {
+          debugPrint('文字起こし結果が空です');
         }
         
         debugPrint('処理完了:');

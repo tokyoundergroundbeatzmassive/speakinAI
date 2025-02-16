@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
@@ -44,12 +44,12 @@ class ChatService {
         final jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
         return jsonResponse['choices'][0]['message']['content'];
       } else {
-        print('Error: ${response.statusCode}');
-        print('Response: ${utf8.decode(response.bodyBytes)}');
+        debugPrint('Error: ${response.statusCode}');
+        debugPrint('Response: ${utf8.decode(response.bodyBytes)}');
         return 'Error Occured. Status code: ${response.statusCode}';
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      debugPrint('Exception occurred: $e');
       return 'Error Occured: $e';
     }
   }
