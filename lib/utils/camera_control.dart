@@ -9,13 +9,14 @@ import '../utils/message_manager.dart';
 import '../services/chat.dart';
 import '../services/tts.dart';
 import '../services/speak.dart';
+import '../utils/images2base64.dart';
 
 class CameraControl {
   CameraController? _controller;
   bool _isInitialized = false;
   bool _isRecording = false;
   final VideoProcessor _videoProcessor = VideoProcessor();
-  List<Map<String, String>> _messages = [];  // 追加
+  List<Map<String, String>> _messages = [];
 
   Future<void> initializeCamera() async {
     if (_controller != null) return;
@@ -107,6 +108,7 @@ class CameraControl {
         
         final results = await Future.wait([framesFuture, audioFuture]);
         final frames = results[0] as List<String>;
+        debugPrint('フレームの再確認: $frames');
         final audioPath = results[1] as String;
 
         // フレームが空の場合はエラーを投げる
@@ -119,26 +121,33 @@ class CameraControl {
         if (transcription.isNotEmpty) {
           debugPrint('文字起こし完了: $transcription');
           
+          // フレームをbase64に変換（メッセージ追加の前に実行）
+          final base64Images = Images2Base64.imagesToBase64(frames);
+          debugPrint('画像変換完了: ${base64Images.length}枚');
+          
           // メッセージを追加
           _messages.add({'role': 'user', 'content': transcription});
           _messages = MessageManager.manageMessages(_messages);
 
-          // AI応答を取得
+          // AI応答を取得（画像付き）
           debugPrint('AI応答を取得中...');
-          final aiResponse = await ChatService.getChatResponse(_messages);
+          final aiResponse = await ChatService.getChatResponse(
+            _messages,
+            base64Images: base64Images,  // base64画像を追加
+          );
           debugPrint('AI応答: $aiResponse');
 
           _messages.add({'role': 'assistant', 'content': aiResponse});
           debugPrint('Conversation History: $_messages');
           _messages = MessageManager.manageMessages(_messages);
 
-        // 音声合成と再生を追加
-        debugPrint('AI応答を音声合成中...');
-        final speechPath = await TTSService.generateSpeech(aiResponse);
-        debugPrint('音声合成完了: $speechPath');
+          // 音声合成と再生を追加
+          debugPrint('AI応答を音声合成中...');
+          final speechPath = await TTSService.generateSpeech(aiResponse);
+          debugPrint('音声合成完了: $speechPath');
 
-        await SpeakService.playAudio(speechPath);
-        debugPrint('音声再生中...');
+          await SpeakService.playAudio(speechPath);
+          debugPrint('音声再生中...');
         } else {
           debugPrint('文字起こし結果が空です');
         }
