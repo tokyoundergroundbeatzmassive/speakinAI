@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -38,13 +39,13 @@ class TTSService {
         await file.writeAsBytes(response.bodyBytes);
         return file.path;
       } else {
-        print('Error: ${response.statusCode}');
-        print('Response: ${response.body}');
+        debugPrint('Error: ${response.statusCode}');
+        debugPrint('Response: ${response.body}');
         throw Exception(
             'Failed to generate speech. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Exception occurred: $e');
+      debugPrint('Exception occurred: $e');
       throw Exception('Failed to generate speech: $e');
     }
   }
