@@ -59,7 +59,7 @@ class CameraControl {
     }
 
     try {
-      // 古いファイルのクリーンアップ
+      // 実行前にファイルのクリーンアップ
       await StorageCleaner.cleanup();
 
       // カメラの実際の解像度情報を取得
@@ -108,7 +108,7 @@ class CameraControl {
         
         final results = await Future.wait([framesFuture, audioFuture]);
         final frames = results[0] as List<String>;
-        debugPrint('フレームの再確認: $frames');
+        // debugPrint('フレームの再確認: $frames');
         final audioPath = results[1] as String;
 
         // フレームが空の場合はエラーを投げる
@@ -121,7 +121,7 @@ class CameraControl {
         if (transcription.isNotEmpty) {
           debugPrint('文字起こし完了: $transcription');
           
-          // フレームをbase64に変換（メッセージ追加の前に実行）
+          // フレームをbase64に変換
           final base64Images = Images2Base64.imagesToBase64(frames);
           debugPrint('画像変換完了: ${base64Images.length}枚');
           
@@ -133,7 +133,7 @@ class CameraControl {
           debugPrint('AI応答を取得中...');
           final aiResponse = await ChatService.getChatResponse(
             _messages,
-            base64Images: base64Images,  // base64画像を追加
+            base64Images: base64Images,
           );
           debugPrint('AI応答: $aiResponse');
 
@@ -141,20 +141,21 @@ class CameraControl {
           debugPrint('Conversation History: $_messages');
           _messages = MessageManager.manageMessages(_messages);
 
-          // 音声合成と再生を追加
+          // 音声合成と再生
           debugPrint('AI応答を音声合成中...');
           final speechPath = await TTSService.generateSpeech(aiResponse);
           debugPrint('音声合成完了: $speechPath');
 
           await SpeakService.playAudio(speechPath);
           debugPrint('音声再生中...');
+
+          // 使用されたファイルを削除
+          await StorageCleaner.cleanup();
         } else {
           debugPrint('文字起こし結果が空です');
         }
         
         debugPrint('処理完了:');
-        debugPrint('- フレーム数: ${frames.length}');
-        debugPrint('- 音声ファイル: $audioPath');
         
         return videoPath;
       } catch (processError) {

@@ -28,6 +28,9 @@ class RecordingControl {
 
   Future<void> startRecording() async {
     try {
+      // 実行前にファイルのクリーンアップ
+      await StorageCleaner.cleanup();
+
       debugPrint('Starting recording...');
       if (await record.hasPermission()) {
         // AppPathsを使用して音声ファイルのパスを取得
