@@ -14,7 +14,7 @@ class StorageCleaner {
         }
         
         await file.delete();
-        debugPrint('動画を削除: ${file.path}');
+        // debugPrint('動画を削除: ${file.path}');
       }
     }
   }
@@ -26,7 +26,7 @@ class StorageCleaner {
         if (file.path.toLowerCase().endsWith('.jpg') || 
             file.path.toLowerCase().endsWith('.jpeg')) {
           await file.delete();
-          debugPrint('フレームを削除: ${file.path}');
+          // debugPrint('フレームを削除: ${file.path}');
         }
       }
     }
@@ -38,7 +38,7 @@ class StorageCleaner {
       await for (final file in audioDir.list()) {
         if (file.path.endsWith('.m4a') || file.path.endsWith('.mp3')) {
           await file.delete();
-          debugPrint('音声を削除: ${file.path}');
+          // debugPrint('音声を削除: ${file.path}');
         }
       }
     }
@@ -47,6 +47,7 @@ class StorageCleaner {
   /// 全ファイルのクリーンアップ
   static Future<void> cleanup() async {
     try {
+      debugPrint('クリーンアップ開始');
       await deleteVideos();
       await deleteFrames();
       await deleteAudio();
