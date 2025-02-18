@@ -5,7 +5,6 @@ import '../utils/camera_control.dart';
 import 'components/mode_switch.dart';
 import 'components/video_button.dart';
 import 'components/mic_button.dart';
-import 'components/blury_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -20,7 +19,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isRecording = false;
   bool _isProcessing = false;
   bool _isVideoMode = true;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -70,27 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _handlePressedChanged(bool pressed) async {
-    setState(() {
-      _isPressed = pressed;
-    });
-    
-    if (!pressed) {
-      try {
-        final videoPath = await _cameraControl.stopRecording();
-        if (videoPath == null) return;
-      } catch (e) {
-        if (!mounted) return;
-
-        if (e.toString().contains('stable_camera_required')) {
-          await WarningDialog.showStableCameraWarning(context);
-        } else {
-          await WarningDialog.showGeneralError(context, e.toString());
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,8 +92,6 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded( // カメラプレビューを利用可能なスペースに合わせる
               child: _isVideoMode
                   ? VideoButton(
-                      isPressed: _isPressed,
-                      onPressedChanged: _handlePressedChanged,
                       cameraControl: _cameraControl,
                       cameraController: _cameraControl.controller,
                     )

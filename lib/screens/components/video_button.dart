@@ -1,22 +1,24 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import '../../utils/camera_control.dart'; 
+import '../../utils/camera_control.dart';
+import 'blury_dialog.dart';
 
-class VideoButton extends StatelessWidget {
-  final bool isPressed;
-  final Function(bool) onPressedChanged;
+class VideoButton extends StatefulWidget {
   final CameraController? cameraController;
-  final VoidCallback? onTap;
   final CameraControl cameraControl;
 
   const VideoButton({
     Key? key,
-    required this.isPressed,
-    required this.onPressedChanged,
     required this.cameraControl,
     this.cameraController,
-    this.onTap,
   }) : super(key: key);
+
+  @override
+  State<VideoButton> createState() => _VideoButtonState();
+}
+
+class _VideoButtonState extends State<VideoButton> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -24,33 +26,43 @@ class VideoButton extends StatelessWidget {
     
     return GestureDetector(
       onTapDown: (_) async {
-        onPressedChanged(true);
-        await cameraControl.startRecording();
+        setState(() => _isPressed = true);
+        await widget.cameraControl.startRecording();
       },
       onTapUp: (_) async {
-        onPressedChanged(false);
-        final videoPath = await cameraControl.stopRecording();
-        debugPrint('録画完了: $videoPath');
+        setState(() => _isPressed = false);
+        try {
+          final videoPath = await widget.cameraControl.stopRecording();
+          if (videoPath == null) return;
+        } catch (e) {
+          if (!context.mounted) return; // contextの mounted チェックに変更
+          
+          if (e.toString().contains('stable_camera_required')) {
+            await WarningDialog.showStableCameraWarning(context);
+          } else {
+            await WarningDialog.showGeneralError(context, e.toString());
+          }
+        }
       },
       onTapCancel: () async {
-        onPressedChanged(false);
-        await cameraControl.stopRecording();
+        setState(() => _isPressed = false);
+        await widget.cameraControl.stopRecording();
       },
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (isPressed && cameraController != null && cameraController!.value.isInitialized)
+          if (_isPressed && widget.cameraController != null && widget.cameraController!.value.isInitialized)
             Container(
               width: size.width,
               height: size.height,
               color: Colors.black,
-              child: CameraPreview(cameraController!),
+              child: CameraPreview(widget.cameraController!),
             ),
           Container(
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              color: isPressed 
+              color: _isPressed 
                 ? const Color.fromRGBO(244, 67, 54, 0.5)
                 : Colors.blue,
               shape: BoxShape.circle,
@@ -64,7 +76,7 @@ class VideoButton extends StatelessWidget {
               ],
             ),
             child: Icon(
-              isPressed ? Icons.camera : Icons.camera_alt,
+              _isPressed ? Icons.camera : Icons.camera_alt,
               size: 100,
               color: Colors.white,
             ),

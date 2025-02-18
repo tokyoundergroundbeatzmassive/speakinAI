@@ -38,10 +38,10 @@ class VideoProcessor {
         
         // ブレ検出とフィルタリングを追加
         final filteredFrames = await filterBlurryFrames(frames);
-        debugPrint('フィルタリング後のフレーム:');
-        for (final frame in filteredFrames) {
-          debugPrint('- $frame');
-        }
+        // debugPrint('フィルタリング後のフレーム:');
+        // for (final frame in filteredFrames) {
+        //   debugPrint('- $frame');
+        // }
         
         return filteredFrames;  // フィルタリング済みのフレームを返す
       } else {
