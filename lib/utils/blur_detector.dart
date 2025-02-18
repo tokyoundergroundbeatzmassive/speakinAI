@@ -26,7 +26,7 @@ class BlurDetector {
       final laplacian = _applyLaplacian(grayscale);
       final variance = _calculateVariance(laplacian);
 
-      debugPrint('ブレ検出スコア ($imagePath): $variance');
+      // debugPrint('ブレ検出スコア ($imagePath): $variance');
       return variance;
     } catch (e) {
       debugPrint('ブレ検出エラー: $e');

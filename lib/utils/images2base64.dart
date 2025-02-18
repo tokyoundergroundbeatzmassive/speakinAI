@@ -17,8 +17,8 @@ class Images2Base64 {
   // 複数の画像をbase64に変換
   static List<String> imagesToBase64(List<String> imagePaths) {
     try {
+      debugPrint('画像をbase64に変換...');
       final base64Images = imagePaths.map((path) {
-        debugPrint('画像を変換中: $path');
         return imageToBase64(path);
       }).where((base64) => base64.isNotEmpty).toList();
 

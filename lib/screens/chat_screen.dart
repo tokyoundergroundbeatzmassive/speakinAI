@@ -79,8 +79,6 @@ class _ChatScreenState extends State<ChatScreen> {
       try {
         final videoPath = await _cameraControl.stopRecording();
         if (videoPath == null) return;
-        
-        debugPrint('録画完了: $videoPath');
       } catch (e) {
         if (!mounted) return;
 

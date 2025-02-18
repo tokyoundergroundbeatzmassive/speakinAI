@@ -103,10 +103,10 @@ class VideoProcessor {
       final blurScore = BlurDetector.detectBlur(path);
       if (blurScore >= threshold) {
         filteredFrames.add(path);
-        debugPrint('フレーム採用: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
+        // debugPrint('フレーム採用: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
       } else {
         await File(path).delete();
-        debugPrint('フレーム削除: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
+        // debugPrint('フレーム削除: $path (ブレスコア: ${blurScore.toStringAsFixed(2)})');
       }
     }
     
@@ -122,7 +122,7 @@ class VideoProcessor {
       // 7枚目以降を削除
       for (var i = 6; i < filteredFrames.length; i++) {
         await File(filteredFrames[i]).delete();
-        debugPrint('超過フレーム削除: ${filteredFrames[i]}');
+        // debugPrint('超過フレーム削除: ${filteredFrames[i]}');
       }
       
       filteredFrames.removeRange(6, filteredFrames.length);
