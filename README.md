@@ -1,6 +1,6 @@
 # speakin_ai
 
-Simple Flutter speaking bot using OpenAI's API.
+Simple Flutter multimodal speaking bot using OpenAI's API.
 
 ## Getting Started
 
@@ -26,10 +26,6 @@ Simple Flutter speaking bot using OpenAI's API.
    ```bash
    flutter run
    ```
-
-## Note
-
-Only tested on iOS 15.2 simulator.
 
 ## License
 
