@@ -29,4 +29,9 @@ Simple Flutter multimodal speaking bot using OpenAI's API.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under a dual license:
+
+1. GNU General Public License v3.0 (GPL-3.0) for non-commercial use
+2. Commercial License for business/commercial use
+
+For details, see the [LICENSE](LICENSE) file or contact info@tubm.tokyo for commercial licensing information.
