@@ -19,7 +19,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isRecording = false;
   bool _isProcessing = false;
   bool _isVideoMode = true;
-  bool _isPressed = false;
 
   @override
   void initState() {
@@ -69,14 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _handlePressedChanged(bool pressed) {
-    if (_isPressed != pressed) {  // 状態が変化する場合のみsetStateを呼び出す
-      setState(() {
-        _isPressed = pressed;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,23 +89,20 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _isVideoMode
-                ? VideoButton(
-                    isPressed: _isPressed,
-                    onPressedChanged: _handlePressedChanged,
-                    cameraControl: _cameraControl,
-                    cameraController: _cameraControl.controller,
-                    onTap: () {
-                      debugPrint('録画ボタンが押されました');
-                    },
-                  )
-                : MicButton(
-                    isRecording: _isRecording,
-                    isProcessing: _isProcessing,
-                    onTapDown: _handleTap,
-                    onTapUp: _handleTap,
-                    onTapCancel: _handleTap,
-                  ),
+            Expanded( // カメラプレビューを利用可能なスペースに合わせる
+              child: _isVideoMode
+                  ? VideoButton(
+                      cameraControl: _cameraControl,
+                      cameraController: _cameraControl.controller,
+                    )
+                  : MicButton(
+                      isRecording: _isRecording,
+                      isProcessing: _isProcessing,
+                      onTapDown: _handleTap,
+                      onTapUp: _handleTap,
+                      onTapCancel: _handleTap,
+                    ),
+            ),
           ],
         ),
       ),

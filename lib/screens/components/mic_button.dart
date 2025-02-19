@@ -33,7 +33,7 @@ class MicButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withAlpha(76),
               spreadRadius: 5,
               blurRadius: 7,
               offset: const Offset(0, 3),

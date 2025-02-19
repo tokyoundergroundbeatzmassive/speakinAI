@@ -1,66 +1,68 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import '../../utils/camera_control.dart'; 
+import '../../utils/camera_control.dart';
+import 'blury_dialog.dart';
 
-class VideoButton extends StatelessWidget {
-  final bool isPressed;
-  final Function(bool) onPressedChanged;
+class VideoButton extends StatefulWidget {
   final CameraController? cameraController;
-  final VoidCallback? onTap;
   final CameraControl cameraControl;
 
   const VideoButton({
     Key? key,
-    required this.isPressed,
-    required this.onPressedChanged,
     required this.cameraControl,
     this.cameraController,
-    this.onTap,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    debugPrint('VideoButton: build開始');
-    cameraControl.setPreviewSize(context);
+  State<VideoButton> createState() => _VideoButtonState();
+}
 
+class _VideoButtonState extends State<VideoButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    
     return GestureDetector(
       onTapDown: (_) async {
-        debugPrint('VideoButton: タップダウン');
-        onPressedChanged(true);
-        onTap?.call();
-        // 録画開始処理を追加
-        await cameraControl.startVideoRecording();
+        setState(() => _isPressed = true);
+        await widget.cameraControl.startRecording();
       },
       onTapUp: (_) async {
-        debugPrint('VideoButton: タップアップ');
-        onPressedChanged(false);
-        // 録画停止処理を追加
-        final frames = await cameraControl.stopVideoRecording();
-        debugPrint('抽出されたフレーム数: ${frames.length}');
+        setState(() => _isPressed = false);
+        try {
+          final videoPath = await widget.cameraControl.stopRecording();
+          if (videoPath == null) return;
+        } catch (e) {
+          if (!context.mounted) return; // contextの mounted チェックに変更
+          
+          if (e.toString().contains('stable_camera_required')) {
+            await WarningDialog.showStableCameraWarning(context);
+          } else {
+            await WarningDialog.showGeneralError(context, e.toString());
+          }
+        }
       },
       onTapCancel: () async {
-        debugPrint('VideoButton: タップキャンセル');
-        onPressedChanged(false);
-        // キャンセル時も録画を停止
-        await cameraControl.stopVideoRecording();
+        setState(() => _isPressed = false);
+        await widget.cameraControl.stopRecording();
       },
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (isPressed && cameraController != null && cameraController!.value.isInitialized)
-            SizedBox(
-              width: cameraControl.previewSize,
-              height: cameraControl.previewSize,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: CameraPreview(cameraController!),
-              ),
+          if (_isPressed && widget.cameraController != null && widget.cameraController!.value.isInitialized)
+            Container(
+              width: size.width,
+              height: size.height,
+              color: Colors.black,
+              child: CameraPreview(widget.cameraController!),
             ),
           Container(
             width: 200,
             height: 200,
             decoration: BoxDecoration(
-              color: isPressed 
+              color: _isPressed 
                 ? const Color.fromRGBO(244, 67, 54, 0.5)
                 : Colors.blue,
               shape: BoxShape.circle,
@@ -74,7 +76,7 @@ class VideoButton extends StatelessWidget {
               ],
             ),
             child: Icon(
-              isPressed ? Icons.camera : Icons.camera_alt,
+              _isPressed ? Icons.camera : Icons.camera_alt,
               size: 100,
               color: Colors.white,
             ),

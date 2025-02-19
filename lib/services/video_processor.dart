@@ -1,90 +1,99 @@
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import 'dart:async';
+import 'package:video_compress/video_compress.dart';
+import '../utils/app_paths.dart';
+import '../utils/blur_detector.dart';
 
 class VideoProcessor {
-  final List<String> _tempFilePaths = [];
+  String? _currentVideoPath;
+
+  Future<String> initializeVideoPath() async {
+    _currentVideoPath = '${await AppPaths.videosPath}/temp_video.mp4';
+    return _currentVideoPath!;
+  }
 
   Future<List<String>> extractFrames(String videoPath) async {
+    final baseOutputPath = await AppPaths.framesPath;
+    debugPrint('フレーム抽出開始...');
+    
     try {
-      debugPrint('動画読み込み開始: $videoPath');
-      final directory = await getTemporaryDirectory();
-      final frames = <String>[];
-      
-      final videoFile = File(videoPath);
-      if (!await videoFile.exists()) {
-        debugPrint('動画ファイルが存在しません: $videoPath');
-        return [];
-      }
-
-      // 一時ディレクトリの存在確認と作成
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
-
-      for (var i = 0; i < 3000; i += 500) {
-        try {
-          final timestamp = DateTime.now().millisecondsSinceEpoch;
-          final fileName = 'thumb_${timestamp}_$i.jpg';
-          final fullPath = '${directory.path}/$fileName';
-          
-          debugPrint('サムネイル生成開始:'
-              '\n  時間: ${i/1000}秒'
-              '\n  パス: $fullPath'
-          );
-
-          final thumbnail = await VideoThumbnail.thumbnailFile(
-            video: videoPath,
-            thumbnailPath: fullPath,
-            imageFormat: ImageFormat.JPEG,
-            timeMs: i,
-            quality: 100,
-            maxHeight: 1080,
-            maxWidth: 1920,
-          );
+      List<String> frames = [];
+      // 1秒あたり4フレームを抽出
+      for (int i = 0; i < 6; i++) {
+        final thumbnail = await VideoCompress.getFileThumbnail(
+          videoPath,
+          quality: 50,
+          position: i * 250, // 250ミリ秒ごとにフレームを取得
+        );
         
-          if (thumbnail != null) {
-            final file = File(thumbnail);
-            if (await file.exists()) {
-              final fileSize = await file.length();
-              debugPrint('サムネイル生成成功:'
-                  '\n  時間: ${i/1000}秒'
-                  '\n  サイズ: ${(fileSize / 1024).toStringAsFixed(2)} KB'
-              );
-              _tempFilePaths.add(thumbnail);
-              frames.add(thumbnail);
-            } else {
-              debugPrint('警告: ファイルが生成されませんでした: $thumbnail');
-            }
-          }
-        } catch (e) {
-          debugPrint('個別のサムネイル生成エラー: $e');
-          continue;
-        }
+        final framePath = '$baseOutputPath/frame_$i.jpg';
+        await File(thumbnail.path).copy(framePath);
+        frames.add(framePath);
       }
-
-      debugPrint('フレーム抽出完了: ${frames.length}枚のフレームを保存');
-      return frames;
+      
+      debugPrint('フレーム抽出完了: ${frames.length}枚');
+      final filteredFrames = await filterBlurryFrames(frames);
+      return filteredFrames;
+      
     } catch (e) {
       debugPrint('フレーム抽出エラー: $e');
-      return [];
+      rethrow;
     }
   }
 
-  Future<void> dispose() async {
-    for (final path in _tempFilePaths) {
-      try {
-        final file = File(path);
-        if (await file.exists()) {
-          await file.delete();
-          debugPrint('一時ファイル削除: $path');
-        }
-      } catch (e) {
-        debugPrint('一時ファイル削除エラー: $e');
+  Future<String> extractAudio(String videoPath) async {
+    final audioPath = '${await AppPaths.audioPath}/audio.m4a';
+    debugPrint('音声抽出開始...');
+    
+    try {
+      final mediaInfo = await VideoCompress.compressVideo(
+        videoPath,
+        includeAudio: true,
+        quality: VideoQuality.MediumQuality,
+      );
+      
+      if (mediaInfo?.path != null) {
+        // 圧縮された動画から音声を取り出す
+        final file = File(mediaInfo!.path!);
+        await file.copy(audioPath);
+        debugPrint('音声抽出完了');
+        // debugPrint(audioPath);
+        return audioPath;
+      } else {
+        throw Exception('音声抽出に失敗しました');
+      }
+    } catch (e) {
+      debugPrint('音声抽出エラー: $e');
+      rethrow;
+    }
+  }
+
+  Future<List<String>> filterBlurryFrames(List<String> framePaths, {double threshold = 80.0}) async {
+    debugPrint('ブレ検出開始: ${framePaths.length}枚のフレームを分析');
+    final filteredFrames = <String>[];
+    
+    for (final path in framePaths) {
+      final blurScore = BlurDetector.detectBlur(path);
+      if (blurScore >= threshold) {
+        filteredFrames.add(path);
+      } else {
+        await File(path).delete();
       }
     }
-    _tempFilePaths.clear();
+    
+    debugPrint('ブレ検出完了:');
+    debugPrint('- 元のフレーム数: ${framePaths.length}');
+    debugPrint('- 採用フレーム数: ${filteredFrames.length}');
+    debugPrint('- 削除フレーム数: ${framePaths.length - filteredFrames.length}');
+    
+    return filteredFrames;
+  }
+
+  Future<String?> getExtractedAudio() async {
+    final audioPath = '${await AppPaths.audioPath}/audio.m4a';
+    if (await File(audioPath).exists()) {
+      return audioPath;
+    }
+    return null;
   }
 }

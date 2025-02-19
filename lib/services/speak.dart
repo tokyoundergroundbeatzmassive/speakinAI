@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 
 class SpeakService {
   static AudioPlayer? _audioPlayer;
@@ -15,7 +16,7 @@ class SpeakService {
         _audioPlayer = null;
       });
     } catch (e) {
-      print('Error playing audio: $e');
+      debugPrint('Error playing audio: $e');
       rethrow;
     }
   }
@@ -28,7 +29,7 @@ class SpeakService {
         _audioPlayer = null;
       }
     } catch (e) {
-      print('Error stopping audio: $e');
+      debugPrint('Error stopping audio: $e');
       rethrow;
     }
   }
