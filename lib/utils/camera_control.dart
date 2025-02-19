@@ -35,8 +35,22 @@ class CameraControl {
     );
 
     try {
-      await _controller?.initialize();
+      // まず初期化
+      await _controller!.initialize();
       _isInitialized = true;
+
+      // 追加設定の前にカメラ情報を出力
+      final size = _controller!.value.previewSize;
+      debugPrint('カメラ設定情報:'
+          '\n  解像度: ${size?.width.toInt()} x ${size?.height.toInt()} pixels'
+          '\n  プリセット: ${_controller!.resolutionPreset}'
+          '\n  アスペクト比: ${(size?.width ?? 0) / (size?.height ?? 1)}'
+      );
+
+      // その後で追加設定
+      await _controller?.setFocusMode(FocusMode.auto);
+      await _controller?.setExposureMode(ExposureMode.auto);
+      
       debugPrint('カメラ初期化完了');
     } catch (e) {
       debugPrint('カメラ初期化エラー: $e');
