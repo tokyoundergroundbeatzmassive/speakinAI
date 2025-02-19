@@ -123,7 +123,6 @@ class CameraControl {
           
           // フレームをbase64に変換
           final base64Images = Images2Base64.imagesToBase64(frames);
-          debugPrint('画像変換完了: ${base64Images.length}枚');
           
           // メッセージを追加
           _messages.add({'role': 'user', 'content': transcription});
@@ -144,7 +143,8 @@ class CameraControl {
           // 音声合成と再生
           debugPrint('AI応答を音声合成中...');
           final speechPath = await TTSService.generateSpeech(aiResponse);
-          debugPrint('音声合成完了: $speechPath');
+          debugPrint('音声合成完了');
+          debugPrint(speechPath);
 
           await SpeakService.playAudio(speechPath);
           debugPrint('音声再生中...');
